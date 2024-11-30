@@ -1,22 +1,20 @@
 #![no_std]
 #![no_main]
 
+mod requests;
 mod writer;
 
 use core::arch::asm;
 use core::fmt::Write;
 
-use limine::request::{FramebufferRequest, RequestsEndMarker, RequestsStartMarker};
+use limine::request::{RequestsEndMarker, RequestsStartMarker};
 use limine::BaseRevision;
+use requests::FRAMEBUFFER_REQUEST;
 use writer::buffer::FrameBufferWriter;
 
 #[used]
 #[link_section = ".requests"]
 static BASE_REVISION: BaseRevision = BaseRevision::new();
-
-#[used]
-#[link_section = ".requests"]
-static FRAMEBUFFER_REQUEST: FramebufferRequest = FramebufferRequest::new();
 
 #[used]
 #[link_section = ".requests_start_marker"]
