@@ -1,0 +1,92 @@
+use core::fmt;
+
+use limine::framebuffer::{Framebuffer, MemoryModel};
+use noto_sans_mono_bitmap::RasterizedChar;
+
+use super::font::{
+    get_char_raster, BORDER_PADDING, CHAR_RASTER_HEIGHT, CHAR_RASTER_WIDTH, LETTER_SPACING,
+    LINE_SPACING,
+};
+
+pub struct FrameBufferWriter<'a> {
+    buffer: &'a mut Framebuffer<'a>,
+    x: usize,
+    y: usize,
+}
+
+impl<'a> FrameBufferWriter<'a> {
+    pub fn new(buffer: &'a mut Framebuffer<'a>) -> Self {
+        Self { buffer, x: 0, y: 0 }
+    }
+    pub fn newline(&mut self) {
+        self.y += CHAR_RASTER_HEIGHT.val() + LINE_SPACING;
+    }
+    pub fn clear(&mut self) {
+        let width = self.width() as u64;
+        let height = self.height() as u64;
+
+        for y in 0..height {
+            for x in 0..width {
+                let pixel_offset = y * self.buffer.pitch() + x * 4;
+                unsafe {
+                    *(self.buffer.addr().add(pixel_offset as usize) as *mut u32) = 0x00000000;
+                }
+            }
+        }
+    }
+    pub fn write_char(&mut self, c: char) {
+        match c {
+            '\n' => self.newline(),
+            '\r' => self.carriage_return(),
+            c => {
+                let new_xpos = self.x + CHAR_RASTER_WIDTH;
+                if new_xpos >= self.width() {
+                    self.newline();
+                }
+                let new_ypos = self.y + CHAR_RASTER_HEIGHT.val() + BORDER_PADDING;
+                if new_ypos >= self.height() {
+                    self.clear();
+                }
+                self.write_rendered_char(get_char_raster(c));
+            }
+        }
+    }
+    pub fn write_pixel(&mut self, x: u64, y: u64, color: u32) {
+        let pixel_offset = y * self.buffer.pitch() + x * 4;
+        unsafe {
+            *(self.buffer.addr().add(pixel_offset as usize) as *mut u32) = color;
+        }
+    }
+    fn write_rendered_char(&mut self, rendered_char: RasterizedChar) {
+        for (y, row) in rendered_char.raster().iter().enumerate() {
+            for (x, byte) in row.iter().enumerate() {
+                let pixel_x = (self.x + x) as u64;
+                let pixel_y = (self.y + y) as u64;
+                let intensity = *byte as u32;
+                let color = (intensity << 16) | (intensity << 8) | intensity;
+
+                self.write_pixel(pixel_x, pixel_y, color);
+            }
+        }
+        self.x += rendered_char.width() + LETTER_SPACING;
+    }
+    fn width(&self) -> usize {
+        self.buffer.width() as usize
+    }
+    fn height(&self) -> usize {
+        self.buffer.height() as usize
+    }
+    fn carriage_return(&mut self) {
+        self.x = BORDER_PADDING
+    }
+}
+
+impl<'a> fmt::Write for FrameBufferWriter<'a> {
+    fn write_str(&mut self, s: &str) -> fmt::Result {
+        for char in s.chars() {
+            self.write_char(char);
+        }
+
+        Ok(())
+    }
+}

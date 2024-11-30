@@ -1,2 +1,5 @@
 target/
 *.iso
+ovmf/
+limine/
+kernel/kernel

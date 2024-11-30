@@ -1,10 +1,14 @@
 #![no_std]
 #![no_main]
 
+mod writer;
+
 use core::arch::asm;
+use core::fmt::Write;
 
 use limine::request::{FramebufferRequest, RequestsEndMarker, RequestsStartMarker};
 use limine::BaseRevision;
+use writer::buffer::FrameBufferWriter;
 
 #[used]
 #[link_section = ".requests"]
@@ -26,19 +30,9 @@ extern "C" fn main() -> ! {
     assert!(BASE_REVISION.is_supported());
 
     if let Some(framebuffer_response) = FRAMEBUFFER_REQUEST.get_response() {
-        if let Some(framebuffer) = framebuffer_response.framebuffers().next() {
-            let width = framebuffer.width() as u64;
-            let height = framebuffer.height() as u64;
-
-            for y in 0..height {
-                for x in 0..width {
-                    let pixel_offset = y * framebuffer.pitch() + x * 4;
-
-                    unsafe {
-                        *(framebuffer.addr().add(pixel_offset as usize) as *mut u32) = 0xFFFFFFFF;
-                    }
-                }
-            }
+        if let Some(mut framebuffer) = framebuffer_response.framebuffers().next() {
+            let mut writer = FrameBufferWriter::new(&mut framebuffer);
+            writer.write_str("Welcome to toggle!");
         }
     }
 
