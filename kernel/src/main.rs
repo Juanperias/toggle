@@ -28,7 +28,6 @@ static _END_MARKER: RequestsEndMarker = RequestsEndMarker::new();
 #[no_mangle]
 extern "C" fn main() -> ! {
     assert!(BASE_REVISION.is_supported());
-
     if let Some(framebuffer_response) = FRAMEBUFFER_REQUEST.get_response() {
         if let Some(mut framebuffer) = framebuffer_response.framebuffers().next() {
             let mut writer = FrameBufferWriter::new(&mut framebuffer);

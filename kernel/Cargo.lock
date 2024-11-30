@@ -24,7 +24,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9aa163ae3f5d28f11e4906fac432e39937daee74920caec72a4962810646e0fb"
 
 [[package]]
-name = "quick-start-simple"
+name = "toggle"
 version = "0.1.0"
 dependencies = [
  "limine",
