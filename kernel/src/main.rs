@@ -1,16 +1,25 @@
 #![no_std]
 #![no_main]
 
+mod mem;
 mod requests;
 mod writer;
 
+use crate::mem::heap::Allocator;
 use core::arch::asm;
 use core::fmt::Write;
 
+use alloc::format;
 use limine::request::{RequestsEndMarker, RequestsStartMarker};
 use limine::BaseRevision;
+
 use requests::FRAMEBUFFER_REQUEST;
 use writer::buffer::FrameBufferWriter;
+
+extern crate alloc;
+
+#[global_allocator]
+static ALLOCATOR: Allocator = Allocator::new();
 
 #[used]
 #[link_section = ".requests"]
@@ -26,10 +35,16 @@ static _END_MARKER: RequestsEndMarker = RequestsEndMarker::new();
 #[no_mangle]
 extern "C" fn main() -> ! {
     assert!(BASE_REVISION.is_supported());
+    let mut writer: FrameBufferWriter;
+
+    // INIT MEMORY ALLOCATOR!
+    ALLOCATOR.init();
+
     if let Some(framebuffer_response) = FRAMEBUFFER_REQUEST.get_response() {
         if let Some(mut framebuffer) = framebuffer_response.framebuffers().next() {
             let mut writer = FrameBufferWriter::new(&mut framebuffer);
-            writer.write_str("Welcome to toggle!");
+
+            writer.write_str("Allocator initialized correctly");
         }
     }
 

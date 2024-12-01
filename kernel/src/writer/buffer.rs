@@ -1,4 +1,4 @@
-use core::fmt;
+use core::fmt::{self, Write};
 
 use limine::framebuffer::{Framebuffer, MemoryModel};
 use noto_sans_mono_bitmap::RasterizedChar;
@@ -89,4 +89,9 @@ impl<'a> fmt::Write for FrameBufferWriter<'a> {
 
         Ok(())
     }
+    fn write_fmt(&mut self, args: fmt::Arguments<'_>) -> fmt::Result {
+        let s = &args.as_str().unwrap();
 }
+
+unsafe impl<'a> Send for FrameBufferWriter<'a> {}
+unsafe impl<'a> Sync for FrameBufferWriter<'a> {}
