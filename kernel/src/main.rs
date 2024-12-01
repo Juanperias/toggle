@@ -1,6 +1,6 @@
 #![no_std]
 #![no_main]
-
+#![allow(clippy::similar_names)]
 mod mem;
 mod requests;
 mod writer;
@@ -9,7 +9,6 @@ use crate::mem::heap::Allocator;
 use core::arch::asm;
 use core::fmt::Write;
 
-use alloc::format;
 use limine::request::{RequestsEndMarker, RequestsStartMarker};
 use limine::BaseRevision;
 
@@ -35,7 +34,6 @@ static _END_MARKER: RequestsEndMarker = RequestsEndMarker::new();
 #[no_mangle]
 extern "C" fn main() -> ! {
     assert!(BASE_REVISION.is_supported());
-    let mut writer: FrameBufferWriter;
 
     // INIT MEMORY ALLOCATOR!
     ALLOCATOR.init();

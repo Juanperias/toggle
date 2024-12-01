@@ -1,6 +1,6 @@
-use core::fmt::{self, Write};
+use core::fmt;
 
-use limine::framebuffer::{Framebuffer, MemoryModel};
+use limine::framebuffer::Framebuffer;
 use noto_sans_mono_bitmap::RasterizedChar;
 
 use super::font::{
@@ -29,7 +29,7 @@ impl<'a> FrameBufferWriter<'a> {
             for x in 0..width {
                 let pixel_offset = y * self.buffer.pitch() + x * 4;
                 unsafe {
-                    *(self.buffer.addr().add(pixel_offset as usize) as *mut u32) = 0x00000000;
+                    *(self.buffer.addr().add(pixel_offset as usize) as *mut u32) = 0x0000_0000;
                 }
             }
         }
