@@ -28,11 +28,14 @@ impl Allocator {
 unsafe impl GlobalAlloc for Allocator {
     unsafe fn alloc(&self, layout: core::alloc::Layout) -> *mut u8 {
         let mut heap = self.heap.lock();
-        (*heap).allocate_first_fit(layout).unwrap().as_ptr()
+        (*heap)
+            .allocate_first_fit(layout)
+            .expect("Cannot allocate memory")
+            .as_ptr()
     }
     unsafe fn dealloc(&self, ptr: *mut u8, layout: core::alloc::Layout) {
         let mut heap = self.heap.lock();
 
-        (*heap).deallocate(NonNull::new(ptr).unwrap(), layout);
+        (*heap).deallocate(NonNull::new_unchecked(ptr), layout);
     }
 }
