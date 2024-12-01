@@ -91,6 +91,9 @@ impl<'a> fmt::Write for FrameBufferWriter<'a> {
     }
     fn write_fmt(&mut self, args: fmt::Arguments<'_>) -> fmt::Result {
         let s = &args.as_str().unwrap();
+        self.write_str(s);
+        Ok(())
+    }
 }
 
 unsafe impl<'a> Send for FrameBufferWriter<'a> {}
