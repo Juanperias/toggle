@@ -1,12 +1,10 @@
-use core::fmt;
-
-use limine::framebuffer::Framebuffer;
-use noto_sans_mono_bitmap::RasterizedChar;
-
 use super::font::{
     get_char_raster, BORDER_PADDING, CHAR_RASTER_HEIGHT, CHAR_RASTER_WIDTH, LETTER_SPACING,
     LINE_SPACING,
 };
+use core::fmt;
+use limine::framebuffer::Framebuffer;
+use noto_sans_mono_bitmap::RasterizedChar;
 
 pub struct FrameBufferWriter<'a> {
     buffer: &'a mut Framebuffer<'a>,

@@ -15,7 +15,7 @@
         crane = inputs.crane.mkLib pkgs;
         toolchain = fenix.packages.${system}.fromToolchainFile {
           file = ./kernel/rust-toolchain.toml;
-          sha256 = "sha256-WGTJJbpV6WEv0VHPBqSIqWLCxzHivFNu0okQ2f9LrWU="; 
+          sha256 = "sha256-XDlwPi572A1SDBG0jFSdCWt0Jou+smSCxwMRnytrYCg=";
         };
         craneLib = crane.overrideToolchain toolchain;
       
@@ -54,7 +54,7 @@
             pkgs.rust-analyzer
             pkgs.gnumake
             pkgs.xorriso
-            pkgs.qemu
+            pkgs.qemu 
           ];
         };
       });
