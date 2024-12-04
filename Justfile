@@ -68,6 +68,7 @@ build: limine kernel
     iso_root -o {{IMAGE_NAME}}.iso
  
   ./limine/limine bios-install {{IMAGE_NAME}}.iso 
+  rm -rf iso_root
 
 clean:
   just kernel/ clean
