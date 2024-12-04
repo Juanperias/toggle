@@ -53,8 +53,10 @@
             toolchain
             pkgs.rust-analyzer
             pkgs.gnumake
+            pkgs.just 
             pkgs.xorriso
-            pkgs.qemu 
+            pkgs.qemu
+            pkgs.git  
           ];
         };
       });
