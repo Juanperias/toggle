@@ -12,6 +12,7 @@ run-uefi: build ovmf-code ovmf-vars
     -no-reboot \
     -no-shutdown \
     -d int \
+    -gdb tcp::1234 \
     -drive if=pflash,unit=0,format=raw,file=ovmf/ovmf-code-{{ARCH}}.fd,readonly=on \
     -drive if=pflash,unit=1,format=raw,file=ovmf/ovmf-vars-{{ARCH}}.fd \
     -cdrom {{IMAGE_NAME}}.iso \
@@ -21,6 +22,7 @@ run-bios: build
   qemu-system-{{ARCH}} \
     -M q35 \
     -cdrom {{IMAGE_NAME}}.iso \
+    -gdb tcp::1234 \
     -boot d \
     {{QEMU_FLAGS}}
 

@@ -57,6 +57,7 @@
             pkgs.xorriso
             pkgs.qemu
             pkgs.git  
+            pkgs.gdb
           ];
         };
       });

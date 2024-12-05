@@ -5,7 +5,7 @@ RUST_PROFILE_SUBDIR := if RUST_PROFILE == "dev" { "debug" } else { "release" }
 build:
   RUSTFLAGS="-C relocation-model=static" cargo build --target {{RUST_TARGET}} --profile {{RUST_PROFILE}} 
   cp target/{{RUST_TARGET}}/{{RUST_PROFILE_SUBDIR}}/toggle kernel
-
+  objcopy --only-keep-debug kernel kernel.sym
   
 clean:
   cargo clean
