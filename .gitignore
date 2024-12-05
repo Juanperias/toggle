@@ -4,3 +4,4 @@ ovmf/
 limine/
 kernel/kernel
 kernel/kernel.sym
+gdb.txt

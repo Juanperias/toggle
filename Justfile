@@ -12,6 +12,7 @@ run-uefi: build ovmf-code ovmf-vars
     -no-reboot \
     -no-shutdown \
     -d int \
+    -S \
     -gdb tcp::1234 \
     -drive if=pflash,unit=0,format=raw,file=ovmf/ovmf-code-{{ARCH}}.fd,readonly=on \
     -drive if=pflash,unit=1,format=raw,file=ovmf/ovmf-vars-{{ARCH}}.fd \
