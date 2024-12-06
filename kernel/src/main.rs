@@ -13,7 +13,7 @@ use limine::request::{RequestsEndMarker, RequestsStartMarker};
 use limine::BaseRevision;
 
 use requests::FRAMEBUFFER_REQUEST;
-use writer::buffer::FrameBufferWriter;
+use writer::buffer::{init_writer, FrameBufferWriter};
 
 extern crate alloc;
 
@@ -39,10 +39,12 @@ extern "C" fn main() -> ! {
     ALLOCATOR.init();
 
     if let Some(framebuffer_response) = FRAMEBUFFER_REQUEST.get_response() {
-        if let Some(mut framebuffer) = framebuffer_response.framebuffers().next() {
-            let mut writer = FrameBufferWriter::new(&mut framebuffer);
+        if let Some(framebuffer) = framebuffer_response.framebuffers().next() {
+            // Init writer!
+            init_writer(framebuffer);
 
-            writer.write_str("Allocator initialized correctly");
+            println!("Allocator initialized successfully");
+            println!("Writer initialized correctly");
         }
     }
 

@@ -1,23 +1,38 @@
+use alloc::boxed::Box;
+use core::fmt;
+use lazy_static::lazy_static;
+use limine::framebuffer::Framebuffer;
+use noto_sans_mono_bitmap::RasterizedChar;
+use spin::Mutex;
+
 use super::font::{
     get_char_raster, BORDER_PADDING, CHAR_RASTER_HEIGHT, CHAR_RASTER_WIDTH, LETTER_SPACING,
     LINE_SPACING,
 };
-use core::fmt;
-use limine::framebuffer::Framebuffer;
-use noto_sans_mono_bitmap::RasterizedChar;
+
+lazy_static! {
+    pub static ref WRITER: Mutex<Option<FrameBufferWriter<'static>>> = Mutex::new(None);
+}
+
+pub fn init_writer(buffer: Framebuffer<'static>) {
+    let writer = FrameBufferWriter::new(Box::new(buffer));
+    let mut writer_lock = WRITER.lock();
+    *writer_lock = Some(writer);
+}
 
 pub struct FrameBufferWriter<'a> {
-    buffer: &'a mut Framebuffer<'a>,
+    buffer: Box<Framebuffer<'a>>,
     x: usize,
     y: usize,
 }
 
 impl<'a> FrameBufferWriter<'a> {
-    pub fn new(buffer: &'a mut Framebuffer<'a>) -> Self {
+    pub fn new(buffer: Box<Framebuffer<'a>>) -> Self {
         Self { buffer, x: 0, y: 0 }
     }
     pub fn newline(&mut self) {
         self.y += CHAR_RASTER_HEIGHT.val() + LINE_SPACING;
+        self.x = 0;
     }
     pub fn clear(&mut self) {
         let width = self.width() as u64;
