@@ -3,7 +3,7 @@ macro_rules! print {
     ($($arg:tt)*) => {{
         let mut lock = $crate::writer::buffer::WRITER.lock();
         let writer = lock.as_mut().unwrap();
-        writer.write_fmt(format_args!($($arg)*));
+        writer.write_fmt(format_args!($($arg)*)).expect("Could not write the message");
     }};
 }
 

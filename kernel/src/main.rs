@@ -9,6 +9,8 @@ use crate::mem::heap::Allocator;
 use core::arch::asm;
 use core::fmt::Write;
 
+use alloc::boxed::Box;
+use alloc::format;
 use limine::request::{RequestsEndMarker, RequestsStartMarker};
 use limine::BaseRevision;
 
@@ -48,18 +50,18 @@ extern "C" fn main() -> ! {
         }
     }
 
-    hcf();
+    loop {}
 }
 
 #[panic_handler]
-fn panic_handler(_info: &core::panic::PanicInfo) -> ! {
-    hcf();
-}
-
-fn hcf() -> ! {
-    loop {
-        unsafe {
-            asm!("hlt");
+fn panic_handler(info: &core::panic::PanicInfo) -> ! {
+    if let Some(framebuffer_response) = FRAMEBUFFER_REQUEST.get_response() {
+        if let Some(framebuffer) = framebuffer_response.framebuffers().next() {
+            let mut writer = FrameBufferWriter::new(Box::new(framebuffer));
+            writer.clear();
+            let _ = writer.write_str(format!("{}", info).as_str());
         }
     }
+
+    loop {}
 }
