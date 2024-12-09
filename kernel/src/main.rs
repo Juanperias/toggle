@@ -45,24 +45,19 @@ extern "C" fn main() -> ! {
     init_writer();
 
     init_idt();
-
     init_gdt();
 
     println!("Allocator initialized successfully");
-    println!("Writer initialized correctly");
+    println!("Writer initialized successfully");
+    println!("Idt initialized successfully");
+    println!("Gdt initialized successfully");
 
     loop {}
 }
 
 #[panic_handler]
 fn panic_handler(info: &core::panic::PanicInfo) -> ! {
-    if let Some(framebuffer_response) = FRAMEBUFFER_REQUEST.get_response() {
-        if let Some(framebuffer) = framebuffer_response.framebuffers().next() {
-            let mut writer = FrameBufferWriter::new(Box::new(framebuffer));
-            writer.clear();
-            let _ = writer.write_str(format!("{}", info).as_str());
-        }
-    }
+    println!("{:?}", info);
 
     loop {}
 }
