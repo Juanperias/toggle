@@ -19,6 +19,7 @@ use limine::BaseRevision;
 use requests::FRAMEBUFFER_REQUEST;
 use writer::buffer::{init_writer, FrameBufferWriter};
 extern crate alloc;
+use crate::sys::gdt::init_gdt;
 
 #[global_allocator]
 static ALLOCATOR: Allocator = Allocator::new();
@@ -44,6 +45,8 @@ extern "C" fn main() -> ! {
     init_writer();
 
     init_idt();
+
+    init_gdt();
 
     println!("Allocator initialized successfully");
     println!("Writer initialized correctly");
