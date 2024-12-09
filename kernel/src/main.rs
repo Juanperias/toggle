@@ -1,14 +1,16 @@
 #![no_std]
 #![no_main]
 #![allow(clippy::similar_names)]
+#![feature(abi_x86_interrupt)]
 mod mem;
 mod requests;
+mod sys;
 mod writer;
 
 use crate::mem::heap::Allocator;
-use core::arch::asm;
 use core::fmt::Write;
 
+use crate::sys::idt::init_idt;
 use alloc::boxed::Box;
 use alloc::format;
 use limine::request::{RequestsEndMarker, RequestsStartMarker};
@@ -16,7 +18,6 @@ use limine::BaseRevision;
 
 use requests::FRAMEBUFFER_REQUEST;
 use writer::buffer::{init_writer, FrameBufferWriter};
-
 extern crate alloc;
 
 #[global_allocator]
@@ -40,15 +41,12 @@ extern "C" fn main() -> ! {
     // INIT MEMORY ALLOCATOR!
     ALLOCATOR.init();
 
-    if let Some(framebuffer_response) = FRAMEBUFFER_REQUEST.get_response() {
-        if let Some(framebuffer) = framebuffer_response.framebuffers().next() {
-            // Init writer!
-            init_writer(framebuffer);
+    init_writer();
 
-            println!("Allocator initialized successfully");
-            println!("Writer initialized correctly");
-        }
-    }
+    init_idt();
+
+    println!("Allocator initialized successfully");
+    println!("Writer initialized correctly");
 
     loop {}
 }

@@ -2,9 +2,9 @@
 macro_rules! print {
     ($($arg:tt)*) => {{
         let mut lock = $crate::writer::buffer::WRITER.lock();
-        let writer = lock.as_mut().unwrap();
+        let writer = lock.as_mut().expect("Writer is null");
         writer.write_fmt(format_args!($($arg)*)).expect("Could not write the message");
-    }};
+        }};
 }
 
 #[macro_export]

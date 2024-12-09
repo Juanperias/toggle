@@ -1,4 +1,5 @@
-use alloc::boxed::Box;
+use crate::requests::FRAMEBUFFER_REQUEST;
+use alloc::{boxed::Box, string::String};
 use core::fmt;
 use lazy_static::lazy_static;
 use limine::framebuffer::Framebuffer;
@@ -14,10 +15,14 @@ lazy_static! {
     pub static ref WRITER: Mutex<Option<FrameBufferWriter<'static>>> = Mutex::new(None);
 }
 
-pub fn init_writer(buffer: Framebuffer<'static>) {
-    let writer = FrameBufferWriter::new(Box::new(buffer));
-    let mut writer_lock = WRITER.lock();
-    *writer_lock = Some(writer);
+pub fn init_writer() {
+    if let Some(framebuffer_response) = FRAMEBUFFER_REQUEST.get_response() {
+        if let Some(framebuffer) = framebuffer_response.framebuffers().next() {
+            let writer = FrameBufferWriter::new(Box::new(framebuffer));
+            let mut writer_lock = WRITER.lock();
+            *writer_lock = Some(writer);
+        }
+    }
 }
 
 pub struct FrameBufferWriter<'a> {
@@ -103,8 +108,15 @@ impl<'a> fmt::Write for FrameBufferWriter<'a> {
         Ok(())
     }
     fn write_fmt(&mut self, args: fmt::Arguments<'_>) -> fmt::Result {
-        let s = &args.as_str().unwrap();
-        self.write_str(s);
+        if let Some(s) = &args.as_str() {
+            self.write_str(s).expect("Could not write in the screen");
+        } else {
+            let mut buffer = String::new();
+            write!(&mut buffer, "{}", args).expect("Could not format args");
+            self.write_str(&buffer)
+                .expect("Could not write in the screen");
+        }
+
         Ok(())
     }
 }
