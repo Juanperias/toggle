@@ -78,7 +78,7 @@ impl<'a> FrameBufferWriter<'a> {
             usize::try_from(pixel_offset).expect("Cannot convert the pixel offset to usize");
         unsafe {
             let buffer = self.buffer.addr().add(offset).cast::<u32>();
-            
+
             *buffer = color;
         }
     }
