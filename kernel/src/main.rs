@@ -6,7 +6,6 @@ mod mem;
 mod requests;
 mod sys;
 mod writer;
-
 use crate::mem::heap::Allocator;
 use core::fmt::Write;
 
@@ -15,6 +14,7 @@ use limine::request::{RequestsEndMarker, RequestsStartMarker};
 use limine::BaseRevision;
 use writer::buffer::init_writer;
 extern crate alloc;
+use crate::requests::BOOT_INFO_REQUEST;
 use crate::sys::gdt::init_gdt;
 
 #[global_allocator]
@@ -43,14 +43,12 @@ extern "C" fn main() -> ! {
     init_idt();
     init_gdt();
 
-    // Example of page layout, at some point this will be removed.
-    unsafe {
-        crate::mem::paging::map_addr(0x2000);
-        let ptr = 0x2000 as *mut u8;
-        *ptr = 90;
-        println!("{}", ptr.read());
-    }
+    let version = env!("CARGO_PKG_VERSION");
 
+    if let Some(boot_info) = BOOT_INFO_REQUEST.get_response() {
+        println!("Limine version: {} ", boot_info.version());
+    }
+    println!("Running toggle {}", version);
     println!("Allocator initialized successfully");
     println!("Writer initialized successfully");
     println!("Idt initialized successfully");
