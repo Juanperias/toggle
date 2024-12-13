@@ -2,12 +2,17 @@ RUST_TARGET := "x86_64-unknown-none"
 RUST_PROFILE :=  env_var_or_default("RUST_PROFILE", "dev")
 RUST_PROFILE_SUBDIR := if RUST_PROFILE == "dev" { "debug" } else { "release" }
 
-build:
-  cargo fmt
+build: format
   RUSTFLAGS="-C relocation-model=static" cargo build --target {{RUST_TARGET}} --profile {{RUST_PROFILE}} 
   cp target/{{RUST_TARGET}}/{{RUST_PROFILE_SUBDIR}}/toggle kernel
   objcopy --only-keep-debug kernel kernel.sym
-  
+ 
+format:
+   cargo fmt
+
+clippy:
+   cargo clippy -- -D clippy::pedantic
+
 clean:
   cargo clean
   rm -rf kernel

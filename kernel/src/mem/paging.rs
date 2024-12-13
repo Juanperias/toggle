@@ -1,4 +1,6 @@
 use alloc::collections::VecDeque;
+use lazy_static::lazy_static;
+use spin::Mutex;
 use x86_64::{
     registers::control::Cr3,
     structures::paging::{
@@ -7,11 +9,8 @@ use x86_64::{
     },
     PhysAddr, VirtAddr,
 };
-use lazy_static::lazy_static;
-use spin::Mutex;
 
 const KERNEL_MEM_OFFSET: u64 = 0xFFFF_8000_0000_0000;
-
 
 const FOUR_KIB: u64 = 4096;
 

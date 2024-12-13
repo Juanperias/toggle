@@ -23,6 +23,10 @@ run-bios: build
   qemu-system-{{ARCH}} \
     -M q35 \
     -cdrom {{IMAGE_NAME}}.iso \
+    -S \
+    -d int \
+    -no-reboot \
+    -no-shutdown \
     -gdb tcp::1234 \
     -boot d \
     {{QEMU_FLAGS}}
@@ -77,5 +81,11 @@ clean:
   just kernel/ clean
   rm -rf iso_root {{IMAGE_NAME}}.iso
   rm -rf limine ovmf
+
+format:
+  just kernel/ format
+
+clippy:
+  just kernel/ clippy
 
 default: run-uefi
