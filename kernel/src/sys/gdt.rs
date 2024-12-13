@@ -33,7 +33,7 @@ pub fn init_gdt() {
     GDT.0.load();
     unsafe {
         CS::set_reg(GDT.1.kernel_code);
-        load_tss(GDT.1.tss)
+        load_tss(GDT.1.tss);
     }
 }
 

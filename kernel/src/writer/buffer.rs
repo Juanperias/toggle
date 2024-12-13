@@ -46,8 +46,11 @@ impl<'a> FrameBufferWriter<'a> {
         for y in 0..height {
             for x in 0..width {
                 let pixel_offset = y * self.buffer.pitch() + x * 4;
+                let offset = usize::try_from(pixel_offset)
+                    .expect("Cannot convert the pixel offset to usize");
                 unsafe {
-                    *(self.buffer.addr().add(pixel_offset as usize) as *mut u32) = 0x0000_0000;
+                    let buffer = self.buffer.addr().add(offset).cast::<u32>();
+                    *buffer = 0x0000_0000;
                 }
             }
         }
@@ -65,22 +68,26 @@ impl<'a> FrameBufferWriter<'a> {
                 if new_ypos >= self.height() {
                     self.clear();
                 }
-                self.write_rendered_char(get_char_raster(c));
+                self.write_rendered_char(&get_char_raster(c));
             }
         }
     }
     pub fn write_pixel(&mut self, x: u64, y: u64, color: u32) {
         let pixel_offset = y * self.buffer.pitch() + x * 4;
+        let offset =
+            usize::try_from(pixel_offset).expect("Cannot convert the pixel offset to usize");
         unsafe {
-            *(self.buffer.addr().add(pixel_offset as usize) as *mut u32) = color;
+            let buffer = self.buffer.addr().add(offset).cast::<u32>();
+            
+            *buffer = color;
         }
     }
-    fn write_rendered_char(&mut self, rendered_char: RasterizedChar) {
+    fn write_rendered_char(&mut self, rendered_char: &RasterizedChar) {
         for (y, row) in rendered_char.raster().iter().enumerate() {
             for (x, byte) in row.iter().enumerate() {
                 let pixel_x = (self.x + x) as u64;
                 let pixel_y = (self.y + y) as u64;
-                let intensity = *byte as u32;
+                let intensity = u32::from(*byte);
                 let color = (intensity << 16) | (intensity << 8) | intensity;
 
                 self.write_pixel(pixel_x, pixel_y, color);
@@ -89,17 +96,17 @@ impl<'a> FrameBufferWriter<'a> {
         self.x += rendered_char.width() + LETTER_SPACING;
     }
     fn width(&self) -> usize {
-        self.buffer.width() as usize
+        usize::try_from(self.buffer.width()).expect("Cannot convert u64 to usize")
     }
     fn height(&self) -> usize {
-        self.buffer.height() as usize
+        usize::try_from(self.buffer.height()).expect("Cannot convert u64 to usize")
     }
     fn carriage_return(&mut self) {
-        self.x = BORDER_PADDING
+        self.x = BORDER_PADDING;
     }
 }
 
-impl<'a> fmt::Write for FrameBufferWriter<'a> {
+impl fmt::Write for FrameBufferWriter<'_> {
     fn write_str(&mut self, s: &str) -> fmt::Result {
         for char in s.chars() {
             self.write_char(char);
@@ -112,7 +119,7 @@ impl<'a> fmt::Write for FrameBufferWriter<'a> {
             self.write_str(s).expect("Could not write in the screen");
         } else {
             let mut buffer = String::new();
-            write!(&mut buffer, "{}", args).expect("Could not format args");
+            write!(&mut buffer, "{args}").expect("Could not format args");
             self.write_str(&buffer)
                 .expect("Could not write in the screen");
         }
@@ -121,5 +128,5 @@ impl<'a> fmt::Write for FrameBufferWriter<'a> {
     }
 }
 
-unsafe impl<'a> Send for FrameBufferWriter<'a> {}
-unsafe impl<'a> Sync for FrameBufferWriter<'a> {}
+unsafe impl Send for FrameBufferWriter<'_> {}
+unsafe impl Sync for FrameBufferWriter<'_> {}

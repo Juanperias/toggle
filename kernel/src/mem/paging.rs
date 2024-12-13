@@ -83,6 +83,5 @@ fn get_page_table(virt_addr: VirtAddr) -> &'static mut PageTable {
     let (frame, _) = Cr3::read();
     let phys_addr = frame.start_address().as_u64();
     let virt = virt_addr.as_u64() + phys_addr;
-    let addr = unsafe { &mut *(virt as *mut PageTable) };
-    addr
+    unsafe { &mut *(virt as *mut PageTable) }
 }
