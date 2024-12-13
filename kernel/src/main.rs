@@ -11,13 +11,9 @@ use crate::mem::heap::Allocator;
 use core::fmt::Write;
 
 use crate::sys::idt::init_idt;
-use alloc::boxed::Box;
-use alloc::format;
 use limine::request::{RequestsEndMarker, RequestsStartMarker};
 use limine::BaseRevision;
-
-use requests::FRAMEBUFFER_REQUEST;
-use writer::buffer::{init_writer, FrameBufferWriter};
+use writer::buffer::init_writer;
 extern crate alloc;
 use crate::sys::gdt::init_gdt;
 
@@ -46,6 +42,14 @@ extern "C" fn main() -> ! {
 
     init_idt();
     init_gdt();
+
+    // Example of page layout, at some point this will be removed.
+    unsafe {
+        crate::mem::paging::map_addr(0x2000);
+        let ptr = 0x2000 as *mut u8;
+        *ptr = 90;
+        println!("{}", ptr.read());
+    }
 
     println!("Allocator initialized successfully");
     println!("Writer initialized successfully");
