@@ -6,7 +6,7 @@ ARCH := "x86_64"
 
 # Run vm
 
-run-uefi: build ovmf-code ovmf-vars
+run-uefi: build ovmf
   qemu-system-{{ARCH}} \
     -M q35 \
     -no-reboot \
@@ -34,19 +34,13 @@ run-bios: build
 
 # OVMF build
 
-ovmf-code:
-  mkdir -p {{OVMF_DIR}}
-  curl -Lo {{OVMF_DIR}}/ovmf-code-{{ARCH}}.fd https://github.com/osdev0/edk2-ovmf-nightly/releases/latest/download/ovmf-code-{{ARCH}}.fd
-
-ovmf-vars:
-   mkdir -p {{OVMF_DIR}}
-   curl -Lo {{OVMF_DIR}}/ovmf-vars-{{ARCH}}.fd https://github.com/osdev0/edk2-ovmf-nightly/releases/latest/download/ovmf-vars-{{ARCH}}.fd
+ovmf:
+    test -d {{OVMF_DIR}} || (mkdir -p {{OVMF_DIR}} && curl -Lo {{OVMF_DIR}}/ovmf-code-{{ARCH}}.fd https://github.com/osdev0/edk2-ovmf-nightly/releases/latest/download/ovmf-code-{{ARCH}}.fd &&  curl -Lo {{OVMF_DIR}}/ovmf-vars-{{ARCH}}.fd https://github.com/osdev0/edk2-ovmf-nightly/releases/latest/download/ovmf-vars-{{ARCH}}.fd)
 
 # Limine (bootloader) build
 
 limine:
-  rm -rf {{LIMINE_DIR}}
-  git clone https://github.com/limine-bootloader/limine.git --branch=v8.x-binary --depth=1
+  test -d {{LIMINE_DIR}} || git clone https://github.com/limine-bootloader/limine.git --branch=v8.x-binary --depth=1
   make -C {{LIMINE_DIR}}
 
 # Kernel build
