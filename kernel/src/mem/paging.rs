@@ -79,7 +79,7 @@ fn get_mapper() -> OffsetPageTable<'static> {
     unsafe { OffsetPageTable::new(get_page_table(addr), addr) }
 }
 
-fn get_page_table(virt_addr: VirtAddr) -> &'static mut PageTable {
+pub fn get_page_table(virt_addr: VirtAddr) -> &'static mut PageTable {
     let (frame, _) = Cr3::read();
     let phys_addr = frame.start_address().as_u64();
     let virt = virt_addr.as_u64() + phys_addr;

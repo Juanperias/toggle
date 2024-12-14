@@ -2,11 +2,13 @@
 #![no_main]
 #![allow(clippy::similar_names)]
 #![feature(abi_x86_interrupt)]
+mod arch;
 mod mem;
 mod requests;
 mod sys;
 mod writer;
 
+use crate::arch::hcf::hcf;
 use crate::mem::heap::Allocator;
 use core::fmt::Write;
 
@@ -17,6 +19,7 @@ use writer::buffer::init_writer;
 extern crate alloc;
 use crate::requests::BOOT_INFO_REQUEST;
 use crate::sys::gdt::init_gdt;
+use core::arch::x86_64::_rdtsc;
 
 #[global_allocator]
 static ALLOCATOR: Allocator = Allocator::new();
@@ -44,6 +47,10 @@ extern "C" fn main() -> ! {
     init_idt();
     init_gdt();
 
+    unsafe {
+        crate::arch::sleep::sleep(10);
+    }
+
     let version = env!("CARGO_PKG_VERSION");
 
     if let Some(boot_info) = BOOT_INFO_REQUEST.get_response() {
@@ -55,12 +62,12 @@ extern "C" fn main() -> ! {
     println!("Idt initialized successfully");
     println!("Gdt initialized successfully");
 
-    loop {}
+    hcf()
 }
 
 #[panic_handler]
 fn panic_handler(info: &core::panic::PanicInfo) -> ! {
     println!("{:?}", info);
 
-    loop {}
+    hcf()
 }
