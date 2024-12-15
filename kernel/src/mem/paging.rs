@@ -4,15 +4,13 @@ use spin::Mutex;
 use x86_64::{
     registers::control::Cr3,
     structures::paging::{
-        FrameAllocator, FrameDeallocator, Mapper, OffsetPageTable, Page, PageTable, PageTableFlags,
-        PhysFrame, Size4KiB,
+        FrameAllocator, FrameDeallocator, Mapper, OffsetPageTable, Page, PageSize, PageTable,
+        PageTableFlags, PhysFrame, Size4KiB,
     },
     PhysAddr, VirtAddr,
 };
 
 const KERNEL_MEM_OFFSET: u64 = 0xFFFF_8000_0000_0000;
-
-const FOUR_KIB: u64 = 4096;
 
 lazy_static! {
     pub static ref MemMapper: Mutex<(PhysAlloc, OffsetPageTable<'static>)> =
@@ -43,7 +41,7 @@ unsafe impl FrameAllocator<Size4KiB> for PhysAlloc {
         let addr = PhysAddr::new(self.pointer);
         let frame = PhysFrame::containing_address(addr);
 
-        self.pointer += FOUR_KIB;
+        self.pointer += Size4KiB::SIZE;
         Some(frame)
     }
 }
@@ -56,7 +54,7 @@ impl FrameDeallocator<Size4KiB> for PhysAlloc {
 
 pub fn map_phys_to_virt(phys: PhysAddr) -> VirtAddr {
     let phys_u64 = phys.as_u64();
-    assert!(phys_u64 % FOUR_KIB == 0);
+    assert!(phys_u64 % Size4KiB::SIZE == 0);
     VirtAddr::new(phys_u64 + KERNEL_MEM_OFFSET)
 }
 
