@@ -48,10 +48,10 @@ extern "C" fn main() -> ! {
 
     let version = env!("CARGO_PKG_VERSION");
 
+    println!("Running toggle {}", version);
     if let Some(boot_info) = BOOT_INFO_REQUEST.get_response() {
         println!("Limine version: {} ", boot_info.version());
     }
-    println!("Running toggle {}", version);
     println!("Allocator initialized successfully");
     println!("Writer initialized successfully");
     println!("Idt initialized successfully");

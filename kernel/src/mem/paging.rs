@@ -54,6 +54,12 @@ impl FrameDeallocator<Size4KiB> for PhysAlloc {
     }
 }
 
+pub fn map_phys_to_virt(phys: PhysAddr) -> VirtAddr {
+    let phys_u64 = phys.as_u64();
+    assert!(phys_u64 % FOUR_KIB == 0);
+    VirtAddr::new(phys_u64 + KERNEL_MEM_OFFSET)
+}
+
 pub fn map_addr(addr: u64) {
     let mut mem_mapper_guard = MemMapper.try_lock().unwrap();
 
