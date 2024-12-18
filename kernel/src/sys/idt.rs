@@ -10,6 +10,7 @@ lazy_static! {
         idt.double_fault.set_handler_fn(double_fault_handler);
         idt.page_fault.set_handler_fn(page_fault_handler);
         idt.divide_error.set_handler_fn(divide_error_fault);
+        idt.invalid_opcode.set_handler_fn(invalid_opcode);
         idt
     };
 }
@@ -18,9 +19,12 @@ pub fn init_idt() {
     IDT.load();
 }
 
+extern "x86-interrupt" fn invalid_opcode(stack_frame: InterruptStackFrame) {
+    println!("Invalid opcode {:?}", stack_frame);
+}
+
 extern "x86-interrupt" fn divide_error_fault(stack_frame: InterruptStackFrame) {
     println!("Divide error {:?}", stack_frame);
-    loop {}
 }
 
 extern "x86-interrupt" fn page_fault_handler(

@@ -56,6 +56,8 @@ extern "C" fn main() -> ! {
     println!("Writer initialized successfully");
     println!("Idt initialized successfully");
     println!("Gdt initialized successfully");
+    let info = crate::arch::cpuid::CpuInfo::new();
+    println!("Cpu: {:?}", info);
 
     hcf()
 }
