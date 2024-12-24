@@ -15,7 +15,7 @@
         crane = inputs.crane.mkLib pkgs;
         toolchain = fenix.packages.${system}.fromToolchainFile {
           file = ./kernel/rust-toolchain.toml;
-          sha256 = "sha256-KA8WKz6JS4CpxVo6YFJ3prTSd+UfglAM21BaUzihhVE=";
+          sha256 = "sha256-jRLUIHKLOmiqsMgA/lauhY7FzfahJqkR0CUsqyfUMRQ=";
         };
         craneLib = crane.overrideToolchain toolchain;
       
@@ -27,9 +27,8 @@
           cargoVendorDir = ./kernel/Cargo.lock;
 
           buildInputs = [
-          ] ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [
-              pkgs.libiconv
-          ];
+          ] ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [];
+
         };
 
         my-crate = craneLib.buildPackage (commonArgs // {
@@ -37,18 +36,7 @@
         });
       in
       {
-        checks = {
-          inherit my-crate;
-        };
-
-        packages.default = my-crate;
-
-        apps.default = flake-utils.lib.mkApp {
-          drv = my-crate;
-        };
-
         devShells.default = craneLib.devShell {
-          checks = self.checks.${system};
           packages = [
             toolchain
             pkgs.rust-analyzer
